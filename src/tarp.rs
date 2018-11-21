@@ -22,6 +22,7 @@ impl Tarp {
     }
 
     fn initialize(&mut self) -> Result<()> {
+        self.gl.create_shader(SHADER_HEADER, SHADER_FILL_VERTEX, SHADER_FILL_FRAGMENT)?;
         self.gl.check_error("initialization")?;
         Ok(())
     }
@@ -72,23 +73,28 @@ struct Uniforms {
 const F32_SIZE: usize = 4;
 const UNIFORM_SIZE: usize = 4;
 const UNIFORMS_SIZE: usize = mem::size_of::<Uniforms>();
+const UNIFORMS_VEC_SIZE: usize = UNIFORMS_SIZE / UNIFORM_SIZE / F32_SIZE;
 const_assert!(uniforms_size; UNIFORMS_SIZE == (11 * UNIFORM_SIZE * F32_SIZE));
 
-const SHADER_HEADER: &str = concat!(
-    "#version 100\n#define UNIFORMARRAY_SIZE ",
-    stringify!(UNIFORMS_SIZE / UNIFORM_SIZE / F32_SIZE),
-);
+// TODO: Hard-coded 11 needs replacing:
+const SHADER_HEADER: &str = indoc!("
+    #version 100
+    #define UNIFORMARRAY_SIZE 11
+
+");
 
 const SHADER_OPT_ANTIALIAS: &str = indoc!("
     #define EDGE_AA 1
+
 ");
 
-const SHADER_FILL_VERT: &str = indoc!("
+const SHADER_FILL_VERTEX: &str = indoc!("
     uniform vec2 viewSize;
     attribute vec2 vertex;
     attribute vec2 tcoord;
     varying vec2 ftcoord;
     varying vec2 fpos;
+
     void main(void) {
         ftcoord = tcoord;
         fpos = vertex;
@@ -101,12 +107,8 @@ const SHADER_FILL_VERT: &str = indoc!("
     }
 ");
 
-const SHADER_FILL_FRAG: &str = indoc!("
-    #if defined(GL_FRAGMENT_PRECISION_HIGH) || defined(NANOVG_GL3)
-    precision highp float;
-    #else
+const SHADER_FILL_FRAGMENT: &str = indoc!("
     precision mediump float;
-    #endif
 
     uniform vec4 frag[UNIFORMARRAY_SIZE];
     uniform sampler2D tex;
@@ -127,8 +129,8 @@ const SHADER_FILL_FRAG: &str = indoc!("
     #define texKind int(frag[10].z)
     #define kind int(frag[10].w)
 
-    float sdroundrrect(vec2 pt, vec2 ext, float rad) {
-        vec ext2 = ext - vec2(rad, rad);
+    float sdroundrect(vec2 pt, vec2 ext, float rad) {
+        vec2 ext2 = ext - vec2(rad, rad);
         vec2 d = abs(pt) - ext2;
         return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - rad;
     }
@@ -163,6 +165,7 @@ const SHADER_FILL_FRAG: &str = indoc!("
             vec2 pt = (paintMat * vec3(fpos, 1.0)).xy;
             float d = clamp((sdroundrect(pt, extent, radius) + feather * 0.5) / feather, 0.0, 1.0);
             vec4 color = mix(innerCol, outerCol, d);
+            // Combine alpha:
             color *= strokeAlpha * scissor;
             result = color;
         } else if (kind == 1) { // Image
