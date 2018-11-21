@@ -1,0 +1,17 @@
+[package]
+name = "wasm-test"
+version = "0.1.0"
+authors = ["Skyler Lipthay <sl@skylerlipthay.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  "WebGlRenderingContext"
+]

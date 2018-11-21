@@ -1,0 +1,7 @@
+target
+**/*.rs.bk
+Cargo.lock
+static/wasm/*
+!static/wasm/.keep
+node_modules
+package-lock.json
