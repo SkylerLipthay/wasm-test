@@ -1,3 +1,5 @@
+use crate::gl::Gl;
+use crate::tarp::Tarp;
 use web_sys::WebGlRenderingContext;
 
 /// The overall state of the application.
@@ -5,7 +7,7 @@ pub struct State {
     /// The time (in seconds) since the last frame.
     pub delta: f64,
     /// The active WebGL context to use for rendering.
-    pub ctx: WebGlRenderingContext,
+    pub tarp: Tarp,
     /// The current width (in pixels) of the canvas.
     pub width: u32,
     /// The current height (in pixels) of the canvas.
@@ -23,9 +25,14 @@ impl State {
     pub fn new(ctx: WebGlRenderingContext, width: u32, height: u32) -> State {
         State {
             delta: 0.0,
-            ctx,
+            tarp: Tarp::new(Gl::new(ctx)),
             width,
             height,
         }
+    }
+
+    pub fn draw(&mut self) {
+        self.tarp.start_frame();
+        self.tarp.end_frame();
     }
 }

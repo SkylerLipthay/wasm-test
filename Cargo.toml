@@ -8,6 +8,8 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
+indoc = "0.2"
+static_assertions = "0.3"
 wasm-bindgen = "0.2"
 
 [dependencies.web-sys]

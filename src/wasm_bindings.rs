@@ -16,8 +16,7 @@ pub fn step(state: &mut StatePtr, delta: f64, width: u32, height: u32) {
     state.delta = delta;
     state.width = width;
     state.height = height;
-    state.ctx.clear_color(1.0, 1.0, 1.0, 1.0);
-    state.ctx.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
+    state.draw();
 }
 
 /// Initializes and returns a new application state.
