@@ -3,6 +3,7 @@
 extern crate wasm_bindgen;
 extern crate web_sys;
 
+mod error;
 mod gl;
 mod state;
 mod tarp;

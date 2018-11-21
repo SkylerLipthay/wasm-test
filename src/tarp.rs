@@ -1,3 +1,4 @@
+use crate::error::Result;
 use crate::gl::Gl;
 use std::mem;
 
@@ -7,10 +8,10 @@ pub struct Tarp {
 }
 
 impl Tarp {
-    pub fn new(gl: Gl) -> Tarp {
+    pub fn new(gl: Gl) -> Result<Tarp> {
         let mut tarp = Tarp { gl };
-        tarp.initialize();
-        tarp
+        tarp.initialize()?;
+        Ok(tarp)
     }
 
     pub fn start_frame(&mut self) {
@@ -20,7 +21,9 @@ impl Tarp {
     pub fn end_frame(&mut self) {
     }
 
-    fn initialize(&mut self) {
+    fn initialize(&mut self) -> Result<()> {
+        self.gl.check_error("initialization")?;
+        Ok(())
     }
 }
 

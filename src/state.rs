@@ -1,3 +1,4 @@
+use crate::error::Result;
 use crate::gl::Gl;
 use crate::tarp::Tarp;
 use web_sys::WebGlRenderingContext;
@@ -22,17 +23,18 @@ impl State {
     /// * `ctx` - The WebGL context (owned by an HTML canvas).
     /// * `width` - The width (in pixels) of the canvas.
     /// * `height` - The height (in pixels) of the canvas.
-    pub fn new(ctx: WebGlRenderingContext, width: u32, height: u32) -> State {
-        State {
+    pub fn new(ctx: WebGlRenderingContext, width: u32, height: u32) -> Result<State> {
+        Ok(State {
             delta: 0.0,
-            tarp: Tarp::new(Gl::new(ctx)),
+            tarp: Tarp::new(Gl::new(ctx))?,
             width,
             height,
-        }
+        })
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self) -> Result<()> {
         self.tarp.start_frame();
         self.tarp.end_frame();
+        Ok(())
     }
 }

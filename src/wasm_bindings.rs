@@ -12,11 +12,12 @@ use web_sys::WebGlRenderingContext;
 /// * `width` - The width (in pixels) of the canvas.
 /// * `height` - The height (in pixels) of the canvas.
 #[wasm_bindgen]
-pub fn step(state: &mut StatePtr, delta: f64, width: u32, height: u32) {
+pub fn step(state: &mut StatePtr, delta: f64, width: u32, height: u32) -> Result<(), JsValue> {
     state.delta = delta;
     state.width = width;
     state.height = height;
-    state.draw();
+    state.draw().map_err::<JsValue, _>(|e| e.into())?;
+    Ok(())
 }
 
 /// Initializes and returns a new application state.
@@ -27,8 +28,8 @@ pub fn step(state: &mut StatePtr, delta: f64, width: u32, height: u32) {
 /// * `width` - The width (in pixels) of the canvas.
 /// * `height` - The height (in pixels) of the canvas.
 #[wasm_bindgen(js_name = newState)]
-pub fn new_state(ctx: WebGlRenderingContext, width: u32, height: u32) -> StatePtr {
-    StatePtr::make(State::new(ctx, width, height))
+pub fn new_state(ctx: WebGlRenderingContext, width: u32, height: u32) -> Result<StatePtr, JsValue> {
+    Ok(StatePtr::make(State::new(ctx, width, height).map_err::<JsValue, _>(|e| e.into())?))
 }
 
 /// Expose `State` as an opaque pointer to JavaScript.
